@@ -11,9 +11,9 @@ name: Deploy Bicep files
 variables:
   vmImageName: 'ubuntu-latest'
 
-  azureServiceConnection: '<your-connection-name>'
-  resourceGroupName: 'exampleRG'
-  location: '<your-resource-group-location>'
+  azureServiceConnection: 'tesing-bicep-connection'
+  resourceGroupName: ''
+  location: ''
   templateFile: 'main.bicep'
 pool:
   vmImage: $(vmImageName)
