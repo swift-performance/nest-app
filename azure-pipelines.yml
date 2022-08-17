@@ -12,7 +12,7 @@ variables:
   vmImageName: 'ubuntu-latest'
 
   azureServiceConnection: 'tesing-bicep-connection'
-  resourceGroupName: ''
+  resourceGroupName: 'testing'
   location: ''
   templateFile: 'main.bicep'
 pool:
