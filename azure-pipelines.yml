@@ -14,7 +14,8 @@ jobs:
   - script: |
             npm install
             npm run build --if-present
-    displayName: 'npm install, build'
+            npm runs start --if present
+    displayName: 'npm build'
     
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
