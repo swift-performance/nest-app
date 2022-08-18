@@ -8,15 +8,19 @@ variables:
   value: westus
 
 jobs:   
-- job:
-    
+- job: Build
+ 
   steps:
-  
+  - script: |
+            npm install
+            npm run build --if-present
+            displayName: 'npm install, build'
+    
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
       connectedServiceName: $(ServiceConnectionName)
       deploymentName: $(Build.BuildNumber)
-      startUpCommand: 'pm2 start dist/main.js --no-daemon'
+      
       location: $(deploymentDefaultLocation)
       resourceGroupName: $(ResourceGroupName)
       csmFile: '**/main.bicep'
