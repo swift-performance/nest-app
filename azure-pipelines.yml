@@ -20,4 +20,4 @@ jobs:
       csmFile: '**/main.bicep'
       overrideParameters: >
         -environmentType $(EnvironmentType)
-        -deploybicepManualsStorageAccount $(deploybicepManualsStorageAccount)
+        -deploynestManualsStorageAccount $(deploynestManualsStorageAccount)
