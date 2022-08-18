@@ -14,17 +14,9 @@ jobs:
   - script: |
             npm install
             npm run build --if-present
-            npm run start --if present
+            
     displayName: 'npm build'
-    
-  - task: AzureWebApp@1
-    inputs:
-      azureSubscription: 'tesing-bicep-connection'
-      appType: 'webAppLinux'
-      appName: 'testing-nest'
-      package: '$(System.DefaultWorkingDirectory)/**/*.zip'
-      startUpCommand: 'pm2 start dist/main.js --no-daemon'
- 
+
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
       connectedServiceName: $(ServiceConnectionName)
@@ -37,6 +29,13 @@ jobs:
         -deploynestManualsStorageAccount $(deploynestManualsStorageAccount)
   
   
-
+  - task: AzureWebApp@1
+    inputs:
+      azureSubscription: 'tesing-bicep-connection'
+      appType: 'webAppLinux'
+      appName: 'testing-nest'
+      package: '$(System.DefaultWorkingDirectory)/**/*.zip'
+      startUpCommand: 'pm2 start dist/main.js --no-daemon'
+ 
       
 
