@@ -20,10 +20,9 @@ jobs:
     inputs:
       connectedServiceName: $(ServiceConnectionName)
       deploymentName: $(Build.BuildNumber)
-      
       location: $(deploymentDefaultLocation)
       resourceGroupName: $(ResourceGroupName)
-      csmFile: '**/main.bicep'
+      csmFile: '**/main.bicep' 
       overrideParameters: >
         -environmentType $(EnvironmentType)
         -deploynestManualsStorageAccount $(deploynestManualsStorageAccount)
