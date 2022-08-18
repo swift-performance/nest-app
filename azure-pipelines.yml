@@ -19,5 +19,5 @@ jobs:
       resourceGroupName: $(ResourceGroupName)
       csmFile: nest-app/main.bicep
       overrideParameters: >
-        -environmentType $(environmentType)
+        -environmentType $(EnvironmentType)
         -deploybicepManualsStorageAccount $(deploybicepManualsStorageAccount)
