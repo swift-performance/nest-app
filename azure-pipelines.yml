@@ -7,17 +7,21 @@ variables:
 - name: deploymentDefaultLocation
   value: westus
 
-jobs:
+jobs:   
 - job:
+    
   steps:
   
   - task: AzureResourceManagerTemplateDeployment@3
     inputs:
       connectedServiceName: $(ServiceConnectionName)
       deploymentName: $(Build.BuildNumber)
+      startUpCommand: 'pm2 start dist/main.js --no-daemon'
       location: $(deploymentDefaultLocation)
       resourceGroupName: $(ResourceGroupName)
       csmFile: '**/main.bicep'
       overrideParameters: >
         -environmentType $(EnvironmentType)
         -deploynestManualsStorageAccount $(deploynestManualsStorageAccount)
+      
+
