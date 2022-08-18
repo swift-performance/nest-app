@@ -13,8 +13,7 @@ jobs:
   steps:
   - script: |
             npm install
-            npm run build --if-present
-            
+            npm run build --if-present          
     displayName: 'npm build'
 
   - task: AzureResourceManagerTemplateDeployment@3
@@ -27,14 +26,6 @@ jobs:
       overrideParameters: >
         -environmentType $(EnvironmentType)
         -deploynestManualsStorageAccount $(deploynestManualsStorageAccount)
-  
-  
-  - task: AzureWebApp@1
-    inputs:
-      azureSubscription: 'tesing-bicep-connection'
-      appType: 'webAppLinux'
-      appName: 'nest-website-yzbtuwyi6zudq'
-      package: '$(System.DefaultWorkingDirectory)/**/*.zip'
       startUpCommand: 'pm2 start dist/main.js --no-daemon'
  
       
