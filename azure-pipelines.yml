@@ -33,7 +33,7 @@ jobs:
     inputs:
       azureSubscription: 'tesing-bicep-connection'
       appType: 'webAppLinux'
-      appName: 'testing-nest'
+      appName: 'nest-website-yzbtuwyi6zudq'
       package: '$(System.DefaultWorkingDirectory)/**/*.zip'
       startUpCommand: 'pm2 start dist/main.js --no-daemon'
  
