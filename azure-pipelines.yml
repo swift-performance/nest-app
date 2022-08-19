@@ -32,14 +32,14 @@ stages:
 - template: deploy/pipeline-templates/lint.yml
   parameters:
     environmentType: Test
-    resourceGroupName:  ${{parameters.resourceGroupName}}
-    serviceConnectionName: ${{parameters.testingserviceConnectionName}}
+    resourceGroupName:  $(resourceGroupName)
+    serviceConnectionName: $(testingserviceConnectionName)
     location: deploymentDefaultLocation
 
 # Deploy to the production environment.
 - template: deploy/pipeline-templates/lint.yml
   parameters:
     environmentType: Production
-    resourceGroupName:  ${{parameters.resourceGroupName}}
-    serviceConnectionName: ${{parameters.prodserviceConnectionName}}
+    resourceGroupName:  $(resourceGroupName)
+    serviceConnectionName: $(prodserviceConnectionName)
     location: deploymentDefaultLocation
