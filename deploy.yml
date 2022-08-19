@@ -70,7 +70,7 @@ stages:
                 deploymentName: $(Build.BuildNumber)
                 location: ${{parameters.deploymentDefaultLocation}}
                 resourceGroupName: ${{parameters.resourceGroupName}}
-                csmFile:  '**/main.bicep'
+                csmFile: '**/main.bicep'
                 overrideParameters: >
                   -environmentType ${{parameters.environmentType}}
                 deploymentOutputs: deploymentOutputs
@@ -82,30 +82,3 @@ stages:
               env:
                 DEPLOYMENT_OUTPUTS: $(deploymentOutputs)
 
-  displayName: Smoke Test (${{parameters.environmentType}} Environment)
-  jobs:
-  - job: SmokeTest
-    displayName: Smoke test
-    variables:
-      appServiceAppHostName: $[ stageDependencies.Deploy_${{parameters.environmentType}}.DeployWebsite.outputs['DeployWebsite.SaveDeploymentOutputs.appServiceAppHostName'] ]
-    steps:
-      - task: PowerShell@2
-        name: RunSmokeTests
-        displayName: Run smoke tests
-        inputs:
-          targetType: inline
-          script: |
-            $container = New-PesterContainer `
-              -Path 'deploy/Website.Tests.ps1' `
-              -Data @{ HostName = '$(appServiceAppHostName)' }
-            Invoke-Pester `
-              -Container $container `
-              -CI
-
-      - task: PublishTestResults@2
-        name: PublishTestResults
-        displayName: Publish test results
-        condition: always()
-        inputs:
-          testResultsFormat: NUnit
-          testResultsFiles: 'testResults.xml'
