@@ -16,7 +16,7 @@ pool:
   
   steps:
   - script: |
-            echo Hello ${{parameters.environmentType}}!
+            echo Hello $(parameters.environmentType)
             npm install
             npm run build --if-present          
     displayName: 'npm build'
@@ -26,10 +26,10 @@ stages:
 # Lint the Bicep file.
 - stage: Lint
   jobs: 
-  - template: '**/pipeline-templates/lint.yml'
+  - template: '**/lint.yml'
 
 # Deploy to the test environment.
-- template: '**/pipeline-templates/deploy.yml'
+- template: '**/deploy.yml'
   parameters:
     environmentType: Test
     resourceGroupName:  ${{parameters.resourceGroupName}}
