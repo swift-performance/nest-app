@@ -37,7 +37,7 @@ stages:
     location: ${{parameters.deploymentDefaultLocation}}
 
 # Deploy to the production environment.
-- template: pipeline-templates/deploy.yml
+- template: deploy.yml
   parameters:
     environmentType: Production
     resourceGroupName:  ${{parameters.resourceGroupName}}
