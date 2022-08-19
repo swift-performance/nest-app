@@ -1,32 +1,45 @@
-trigger: none
+trigger:
+  batch: true
+  branches:
+    include:
+    - main
 
 pool:
   vmImage: ubuntu-latest
 
-variables:
-- name: deploymentDefaultLocation
-  value: westus
+  variables:
+    - name: deploymentDefaultLocation
+      value: westus
 
-jobs:   
-- job: Build
- 
+  jobs:   
+  - job: Build
+  
   steps:
   - script: |
+            echo Hello word!
             npm install
             npm run build --if-present          
     displayName: 'npm build'
+    
+stages:
 
-  - task: AzureResourceManagerTemplateDeployment@3
-    inputs:
-      connectedServiceName: $(ServiceConnectionName)
-      deploymentName: $(Build.BuildNumber)
-      location: $(deploymentDefaultLocation)
-      resourceGroupName: $(ResourceGroupName)
-      csmFile: '**/main.bicep' 
-      overrideParameters: >
-        -environmentType $(EnvironmentType)
-        -deploynestManualsStorageAccount $(deploynestManualsStorageAccount)
-      startUpCommand: 'pm2 start dist/main.js --no-daemon'
- 
-      
+# Lint the Bicep file.
+- stage: Lint
+  jobs: 
+  - template: pipeline-templates/lint.yml
 
+# Deploy to the test environment.
+- template: pipeline-templates/deploy.yml
+  parameters:
+    environmentType: Test
+    resourceGroupName:  ${{parameters.resourceGroupName}}
+    serviceConnectionName: ${{parameters.testingserviceConnectionName}}
+    location: ${{parameters.deploymentDefaultLocation}}
+
+# Deploy to the production environment.
+- template: pipeline-templates/deploy.yml
+  parameters:
+    environmentType: Production
+    resourceGroupName:  ${{parameters.resourceGroupName}}
+    serviceConnectionName: ${{parameters.prodserviceConnectionName}}
+    location: ${{parameters.deploymentDefaultLocation}}
