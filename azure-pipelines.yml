@@ -26,10 +26,10 @@ stages:
 # Lint the Bicep file.
 - stage: Lint
   jobs: 
-  - template: '**/lint.yml'
+  - template: lint.yml
 
 # Deploy to the test environment.
-- template: '**/deploy.yml'
+- template: deploy.yml
   parameters:
     environmentType: Test
     resourceGroupName:  ${{parameters.resourceGroupName}}
