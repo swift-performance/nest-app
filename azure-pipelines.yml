@@ -38,6 +38,6 @@ stages:
 # Deploy to the production environment.
 - template: deploy.yml
   parameters:
-    environmentType: production
+    environmentType: Production
     resourceGroupName: testing
     serviceConnectionName: prod-service-connection
