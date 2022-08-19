@@ -26,18 +26,20 @@ stages:
 # Lint the Bicep file.
 - stage: Lint
   jobs: 
-  - template: lint.yml
+  - template: pipeline-templates/lint.yml
 
 # Deploy to the test environment.
-- template: deploy.yml
+- template: pipeline-templates/deploy.yml
   parameters:
     environmentType: Test
-    resourceGroupName: testing
-    serviceConnectionName: testing-service-connection
+    resourceGroupName:  ${{parameters.resourceGroupName}}
+    serviceConnectionName: ${{parameters.testingserviceConnectionName}}
+    location: ${{parameters.deploymentDefaultLocation}}
 
 # Deploy to the production environment.
-- template: deploy.yml
+- template: pipeline-templates/deploy.yml
   parameters:
     environmentType: Production
-    resourceGroupName: testing
-    serviceConnectionName: prod-service-connection
+    resourceGroupName:  ${{parameters.resourceGroupName}}
+    serviceConnectionName: ${{parameters.prodserviceConnectionName}}
+    location: ${{parameters.deploymentDefaultLocation}}

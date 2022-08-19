@@ -26,7 +26,7 @@ stages:
             location: ${{parameters.deploymentDefaultLocation}}
             deploymentMode: Validation
             resourceGroupName: ${{parameters.resourceGroupName}}
-            csmFile: '**/main.bicep'
+            csmFile: deploy/main.bicep
             overrideParameters: >
               -environmentType ${{parameters.environmentType}}
 
@@ -47,7 +47,7 @@ stages:
             inlineScript: |
               az deployment group what-if \
                 --resource-group ${{parameters.resourceGroupName}} \
-                --template-file '**/main.bicep' \
+                --template-file deploy/main.bicep \
                 --parameters environmentType=${{parameters.environmentType}}
 
 - stage: Deploy_${{parameters.environmentType}}
@@ -70,7 +70,7 @@ stages:
                 deploymentName: $(Build.BuildNumber)
                 location: ${{parameters.deploymentDefaultLocation}}
                 resourceGroupName: ${{parameters.resourceGroupName}}
-                csmFile: '**/main.bicep'
+                csmFile: deploy/main.bicep
                 overrideParameters: >
                   -environmentType ${{parameters.environmentType}}
                 deploymentOutputs: deploymentOutputs
