@@ -1,19 +1,18 @@
+# az-login.yaml
+name: Display Account Info
 
-# File: .github/workflows/workflow.yml
-
-on: [push]
-
-name: AzureLoginSample
+on:
+  push:
 
 jobs:
-  
-  build-and-deploy:
+  login:
     runs-on: ubuntu-latest
+
     steps:
-    name: login to Azure
-    - uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-     
-    - name: Display Azure account info
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Display Azure account info
         run: az account show -o yaml
