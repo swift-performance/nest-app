@@ -28,7 +28,9 @@ jobs:
           az group create
           -l ${{ env.RESOURCE_GROUP_LOCATION }}
           -n ${{ env.RESOURCE_GROUP_NAME }}
-
+       
+       # Install azure-cli
+      - uses: elstudio/action-install-azure-cli@v1
       - uses: azure/arm-deploy@v1
         id: infra
         with:
