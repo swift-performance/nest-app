@@ -26,7 +26,7 @@ stages:
 # Lint the Bicep file.
 - stage: Lint
   jobs: 
-  - template: pipeline-templates/lint.yml
+  - template: '**/lint.yml'
 
 # Deploy to the test environment.
 - template: deploy/pipeline-templates/lint.yml
