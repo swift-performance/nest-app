@@ -1,75 +1,67 @@
-name: Build and deploy Docker app to Azure
+#deploy.yaml
+name: CI
 
-on: push
+on:
+  push:
 
-# CONFIGURATION
-# For help, go to https://github.com/Azure/Actions
-#
-# Set up the following secrets in your repository:
-#   AZURE_CREDENTIALS, REGISTRY_USERNAME, REGISTRY_PASSWORD, REGISTRY_URL
-# 2. Change these variables for your configuration:
 env:
-  AZURE_WEBAPP_NAME: nest-website-yzbtuwyi6zudq   # set this to your application's name
-  CONTAINER_REGISTRY: ${{ secrets.REGISTRY_URL }}  # set secret with Container Registry URL, example : xyz.azurecr.io 
-  AZURE_RESOURCE_GROUP: testing   # set this to your Azure Resource group's name - Needed only if you are provisioning the app in the workflow
-  AZURE_APP_PLAN: nest-website-plan  # set this to your App service plan's name - Needed only if you are provisioning the app in the workflow
-  
+  RESOURCE_GROUP_NAME: github-action-bicep-rg
+  RESOURCE_GROUP_LOCATION: westeurope
+  ENV_NAME: dev
+
 jobs:
-  build-and-deploy-to-dev:
+  deploy-infra:
     runs-on: ubuntu-latest
-    environment: dev
+    # The output can be read from other jobs that depend on this one
+    outputs:
+      webAppName: ${{ steps.infra.outputs.webAppName }}
     steps:
-    - uses: actions/checkout@master
-    - name: Azure authentication
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-     - name: Azure CLI script to provision a new Web App for Container
-       uses: azure/CLI@v0-beta
+      - uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: Azure/login@v1
         with:
-          azcliversion: latest
-          inlineScript: |
-            az webapp create --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --plan ${{ env.AZURE_APP_PLAN }} --name ${{ env.AZURE_WEBAPP_NAME }}  -i nginx
-    - name: ACR authentication
-      uses: azure/docker-login@v1
-      with:
-        login-server: ${{ env.CONTAINER_REGISTRY }}
-        username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}    
-    - name: Docker Build & Push to ACR
-      run: |
-        docker build . -t ${{ env.CONTAINER_REGISTRY }}/nodejsapp:${{ github.sha }}
-        docker push ${{ env.CONTAINER_REGISTRY }}/nodejsapp:${{ github.sha }} 
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
- Uncomment the below action snippet if the Web app credentials are not updated as web app settings
-     - name: Set Web App ACR authentication
-        uses: Azure/appservice-settings@v1
-       with:
-         app-name: ${{ env.AZURE_WEBAPP_NAME }} 
-         app-settings-json: |
-           [
-               {
-                   "name": "DOCKER_REGISTRY_SERVER_PASSWORD",
-                   "value": "${{ secrets.REGISTRY_PASSWORD }}",
-                   "slotSetting": false
-               },
-              {
-                   "name": "DOCKER_REGISTRY_SERVER_URL",
-                  "value": "https://${{ env.CONTAINER_REGISTRY }}",
-                  "slotSetting": false
-               },
-               {
-                   "name": "DOCKER_REGISTRY_SERVER_USERNAME",
-                   "value": "${{ secrets.REGISTRY_USERNAME  }}",
-                  "slotSetting": false
-              }
-          ]
+      - name: Create ResourceGroup
+        run: >
+          az group create
+          -l ${{ env.RESOURCE_GROUP_LOCATION }}
+          -n ${{ env.RESOURCE_GROUP_NAME }}
 
-    - name: 'Deploy to Azure Web App for Container'
-      uses: azure/webapps-deploy@v2
-      with: 
-        app-name: ${{ env.AZURE_WEBAPP_NAME }} 
-        images: ${{ env.CONTAINER_REGISTRY }}/nodejsapp:${{ github.sha }}
-#         startup-command: 'npm start'    # Include start up command to start the app container
+      - uses: azure/arm-deploy@v1
+        id: infra
+        with:
+          resourceGroupName: ${{ env.RESOURCE_GROUP_NAME }}
+          template: ./infra.bicep
+          parameters: env=${{ env.ENV_NAME }}
 
-# For more samples to get started with GitHub Action workflows to deploy to Azure, refer to https://github.com/Azure/actions-workflow-samples
+      - name: Print WebApp endpoint
+        run: echo https://${{ steps.infra.outputs.webAppEndpoint }}
+
+  deploy-webapp:
+    needs: [deploy-infra]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v2.2.0
+        with:
+          node-version: 12.x
+
+      - name: Npm install
+        run: npm ci
+
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy Azure WebApp
+        uses: Azure/webapps-deploy@v2
+        with:
+          # We reference the webAppName output of the deploy-infra job
+          app-name: ${{ needs.deploy-infra.outputs.webAppName }}
+          startup-command: npm start
