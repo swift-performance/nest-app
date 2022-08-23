@@ -1,3 +1,32 @@
+Skip to content
+Search or jump to…
+Pull requests
+Issues
+Marketplace
+Explore
+ 
+@swift-sandeep 
+swift-performance
+/
+nest-app
+Public
+Code
+Issues
+Pull requests
+Actions
+Projects
+Wiki
+Security
+Insights
+Settings
+Update test.yml Build and deploy Docker app to Azure #12
+Summary
+Usage
+Workflow file
+Jobs
+build-and-deploy-to-dev
+Workflow file for this run
+.github/workflows/test.yml at a88a306
 name: Build and deploy Docker app to Azure
 
 on: push
@@ -11,8 +40,8 @@ on: push
 env:
   AZURE_WEBAPP_NAME: AppWithContainer   # set this to your application's name
   CONTAINER_REGISTRY: ${{ secrets.REGISTRY_URL }}  # set secret with Container Registry URL, example : xyz.azurecr.io 
-  AZURE_RESOURCE_GROUP: nest-app-group   # set this to your Azure Resource group's name - Needed only if you are provisioning the app in the workflow
-  AZURE_APP_PLAN: nest-app-plan  # set this to your App service plan's name - Needed only if you are provisioning the app in the workflow
+  AZURE_RESOURCE_GROUP: testing   # set this to your Azure Resource group's name - Needed only if you are provisioning the app in the workflow
+  AZURE_APP_PLAN: nest-website-plan  # set this to your App service plan's name - Needed only if you are provisioning the app in the workflow
   
 jobs:
   build-and-deploy-to-dev:
@@ -24,12 +53,12 @@ jobs:
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-    - name: Azure CLI script to provision a new Web App for Container
-      uses: azure/CLI@v0-beta
-      with:
-       azcliversion: latest
-       inlineScript: |
-         az webapp create --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --plan ${{ env.AZURE_APP_PLAN }} --name ${{ env.AZURE_WEBAPP_NAME }}  -i nginx
+#     - name: Azure CLI script to provision a new Web App for Container
+#       uses: azure/CLI@v0-beta
+#       with:
+#         azcliversion: latest
+#         inlineScript: |
+#           az webapp create --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --plan ${{ env.AZURE_APP_PLAN }} --name ${{ env.AZURE_WEBAPP_NAME }}  -i nginx
     - name: ACR authentication
       uses: azure/docker-login@v1
       with:
@@ -40,26 +69,26 @@ jobs:
       run: |
         docker build . -t ${{ env.CONTAINER_REGISTRY }}/nodejsapp:${{ github.sha }}
         docker push ${{ env.CONTAINER_REGISTRY }}/nodejsapp:${{ github.sha }} 
-
 # Uncomment the below action snippet if the Web app credentials are not updated as web app settings
-    - name: Set Web App ACR authentication
-      uses: Azure/appservice-settings@v1
-      with:
+     - name: Set Web App ACR authentication
+       uses: Azure/appservice-settings@v1
+       with:
          app-name: ${{ env.AZURE_WEBAPP_NAME }} 
          app-settings-json: |
-            [
-                {
+           [
+               {
                    "name": "DOCKER_REGISTRY_SERVER_PASSWORD",
-                   "value": "${{ secrets.REGISTRY_PASSWORD }}",
-                   "slotSetting": false               },
+                  "value": "${{ secrets.REGISTRY_PASSWORD }}",
+                   "slotSetting": false
+              },
                {
                    "name": "DOCKER_REGISTRY_SERVER_URL",
                    "value": "https://${{ env.CONTAINER_REGISTRY }}",
                    "slotSetting": false
-              },
+               },
                {
                    "name": "DOCKER_REGISTRY_SERVER_USERNAME",
-                  "value": "${{ secrets.REGISTRY_USERNAME  }}",
+                   "value": "${{ secrets.REGISTRY_USERNAME  }}",
                    "slotSetting": false
                }
             ]
