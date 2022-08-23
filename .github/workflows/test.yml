@@ -9,6 +9,14 @@ jobs:
     runs-on: self-hosted
 
     steps:
+     - name: "Login and do something"
+       uses: azure/CLI@v1
+       with:
+        azcliversion: 2.24.2
+        inlineScript: |
+          az login --identity
+          az group list   
+
       - name: Azure Login
         uses: Azure/login@v1
         with:
