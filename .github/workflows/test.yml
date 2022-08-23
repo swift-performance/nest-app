@@ -9,18 +9,18 @@ jobs:
     runs-on: self-hosted
 
     steps:
-     - name: "Login and do something"
-       uses: azure/CLI@v1
-       with:
-        azcliversion: 2.24.2
-        inlineScript: |
+      - name: "Login and do something"
+        uses: azure/CLI@v1
+        with:
+         azcliversion: 2.39.0
+         inlineScript: |
           az login --identity
           az group list   
-
+          
       - name: Azure Login
         uses: Azure/login@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Display Azure account info
         run: az account show -o yaml
