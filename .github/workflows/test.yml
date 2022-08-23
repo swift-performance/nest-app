@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: "Login and do something"
+      - name: "Login  test"
         uses: azure/CLI@v1
         with:
          azcliversion: 2.39.0
