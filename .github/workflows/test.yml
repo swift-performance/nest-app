@@ -6,7 +6,7 @@ on:
 
 jobs:
   login:
-    runs-on: nest-app-runner
+    runs-on: ubuntu-latest
 
     steps:
       - name: "Login and do something"
