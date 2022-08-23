@@ -6,7 +6,7 @@ on:
 
 jobs:
   login:
-    runs-on: self-hosted
+    runs-on: nest-app-runner
 
     steps:
       - name: "Login and do something"
