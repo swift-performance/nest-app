@@ -1,17 +1,19 @@
-# az-login.yaml
-name: Display Account Info
 
-on:
-  push:
+# File: .github/workflows/workflow.yml
+
+on: [push]
+
+name: AzureLoginSample
 
 jobs:
-  build:
+
+  build-and-deploy:
     runs-on: ubuntu-latest
-    steps:            
-    - name: "Login and do something"
-      uses: azure/CLI@v1
+    steps:
+    
+    - uses: azure/login@v1
       with:
-        azcliversion: 2.24.2
-        inlineScript: |
-          az login --identity
-          az group list
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - run: |
+        az webapp list --query "[?state=='Running']"
