@@ -8,15 +8,7 @@ jobs:
   login:
     runs-on: ubuntu-latest
 
-    steps:
-      - name: "Login  test-MSI"
-        uses: azure/CLI@v1
-        with:
-         azcliversion: 2.39.0
-         inlineScript: |
-          az login --identity
-          az group list   
-          
+    steps:        
       - name: Azure Login
         uses: Azure/login@v1
         with:
