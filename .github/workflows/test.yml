@@ -24,12 +24,12 @@ jobs:
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-#     - name: Azure CLI script to provision a new Web App for Container
-#       uses: azure/CLI@v0-beta
-#       with:
-#         azcliversion: latest
-#         inlineScript: |
-#           az webapp create --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --plan ${{ env.AZURE_APP_PLAN }} --name ${{ env.AZURE_WEBAPP_NAME }}  -i nginx
+    - name: Azure CLI script to provision a new Web App for Container
+      uses: azure/CLI@v0-beta
+      with:
+       azcliversion: latest
+       inlineScript: |
+         az webapp create --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --plan ${{ env.AZURE_APP_PLAN }} --name ${{ env.AZURE_WEBAPP_NAME }}  -i nginx
     - name: ACR authentication
       uses: azure/docker-login@v1
       with:
@@ -42,28 +42,27 @@ jobs:
         docker push ${{ env.CONTAINER_REGISTRY }}/nodejsapp:${{ github.sha }} 
 
 # Uncomment the below action snippet if the Web app credentials are not updated as web app settings
-#     - name: Set Web App ACR authentication
-#       uses: Azure/appservice-settings@v1
-#       with:
-#         app-name: ${{ env.AZURE_WEBAPP_NAME }} 
-#         app-settings-json: |
-#           [
-#               {
-#                   "name": "DOCKER_REGISTRY_SERVER_PASSWORD",
-#                   "value": "${{ secrets.REGISTRY_PASSWORD }}",
-#                   "slotSetting": false
-#               },
-#               {
-#                   "name": "DOCKER_REGISTRY_SERVER_URL",
-#                   "value": "https://${{ env.CONTAINER_REGISTRY }}",
-#                   "slotSetting": false
-#               },
-#               {
-#                   "name": "DOCKER_REGISTRY_SERVER_USERNAME",
-#                   "value": "${{ secrets.REGISTRY_USERNAME  }}",
-#                   "slotSetting": false
-#               }
-#           ]
+    - name: Set Web App ACR authentication
+      uses: Azure/appservice-settings@v1
+      with:
+         app-name: ${{ env.AZURE_WEBAPP_NAME }} 
+         app-settings-json: |
+            [
+                {
+                   "name": "DOCKER_REGISTRY_SERVER_PASSWORD",
+                   "value": "${{ secrets.REGISTRY_PASSWORD }}",
+                   "slotSetting": false               },
+               {
+                   "name": "DOCKER_REGISTRY_SERVER_URL",
+                   "value": "https://${{ env.CONTAINER_REGISTRY }}",
+                   "slotSetting": false
+              },
+               {
+                   "name": "DOCKER_REGISTRY_SERVER_USERNAME",
+                  "value": "${{ secrets.REGISTRY_USERNAME  }}",
+                   "slotSetting": false
+               }
+            ]
 
     - name: 'Deploy to Azure Web App for Container'
       uses: azure/webapps-deploy@v2
