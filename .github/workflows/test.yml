@@ -71,6 +71,6 @@ jobs:
         app-name: ${{ env.AZURE_WEBAPP_NAME }} 
         publish-profile: ${{ secrets.azureWebAppPublishProfile }}
         images: ${{ env.CONTAINER_REGISTRY }}/nodejsapp:${{ github.sha }}
-        # startup-command: npm run start:dev    # Include start up command to start the app container
+        # startup-command: pm2 start dist/main.js --no-daemon    # Include start up command to start the app container
 
 # For more samples to get started with GitHub Action workflows to deploy to Azure, refer to https://github.com/Azure/actions-workflow-samples
