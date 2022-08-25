@@ -92,8 +92,7 @@ jobs:
         uses: azure/arm-deploy@v1
 
         with:
-          inlineScript: |
-            echo  environmentType=${{ inputs.environmentType }}
+           
           failOnStdErr: false
           deploymentName: ${{ github.run_number }}
           resourceGroupName: ${{ inputs.resourceGroupName }}
