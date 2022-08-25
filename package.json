@@ -9,7 +9,7 @@
     "prebuild": "rimraf dist",
     "build": "npm build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "npm i -g @nestjs/cli && node dist/main",
+    "start": "pm2 start dist/main.js --no-daemon -f",
     "start:dev": "npm start --watch",
     "start:debug": "npm start --debug --watch",
     "start:prod": "node dist/main",
