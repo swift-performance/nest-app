@@ -96,7 +96,7 @@ jobs:
         uses: azure/arm-deploy@v1
 
         with:
-          run: echo The default environement  is ${{ inputs.environmentType }} ${{ inputs.resourceGroupName }} ${{ github.run_number }}
+          run: echo The default environement  is ${{ inputs.environmentType }} ${{ github.run_number }}
           failOnStdErr: false
         # deploymentName: ${{ github.run_number }}
          # resourceGroupName: ${{ inputs.resourceGroupName }}
