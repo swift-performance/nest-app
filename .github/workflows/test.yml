@@ -9,10 +9,12 @@ on:
   workflow_call:
     inputs:
       environmentType:
+        description: "environment for project"
+        default: development
         required: true
         type: string
       resourceGroupName:
-        required: true
+        required: false
         type: string
 
 # CONFIGURATION
@@ -92,7 +94,7 @@ jobs:
         uses: azure/arm-deploy@v1
 
         with:
-           
+          run: echo The default environement  is ${{ inputs.environmentType }}
           failOnStdErr: false
           deploymentName: ${{ github.run_number }}
           resourceGroupName: ${{ inputs.resourceGroupName }}
