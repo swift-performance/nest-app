@@ -23,17 +23,15 @@ jobs:
       uses: docker/login-action@v1
       with:
         registry: https://swiftcontainer.azurecr.io/
-        username: ${{ secrets.AzureAppService_ContainerUsername_a5064fb2cc4b4c25a3e2369031235d9d }}
-        
+        username: ${{ secrets.AzureAppService_ContainerUsername_a5064fb2cc4b4c25a3e2369031235d9d }}       
         password: ${{ secrets.AzureAppService_ContainerPassword_a25d67e39e20485c8a3042a78dff6689 }}
-        inlineScript: 
-          echo:username
+        
 
     - name: Build and push container image to registry
       uses: docker/build-push-action@v2
       with:
         push: true
-        tags: swiftcontainer.azurecr.io/${{ secrets.CONTAINER_REGISTRY }}/nodejsapp:${{ github.sha }}
+        tags: swiftcontainer.azurecr.io/nodejsapp:${{ github.sha }}
         file: ./Dockerfile
 
   deploy:
@@ -51,4 +49,4 @@ jobs:
         app-name: 'test-nest-app'
         slot-name: 'production'
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_d75e3f8e56bf44989060810b98abf219 }}
-        images: 'swiftcontainer.azurecr.io/${{ secrets.CONTAINER_REGISTRY }}/nodejsapp:${{ github.sha }}'
+        images: 'swiftcontainer.azurecr.io/nodejsapp:${{ github.sha }}'
