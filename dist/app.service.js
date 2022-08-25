@@ -8,7 +8,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppService = exports.__VERSION__ = void 0;
 const common_1 = require("@nestjs/common");
-exports.__VERSION__ = '0.0.3';
+exports.__VERSION__ = '0.1.1';
 let AppService = class AppService {
     getVersion() {
         return exports.__VERSION__;

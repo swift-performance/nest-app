@@ -1,12 +1,7 @@
-FROM node:14-alpine
-WORKDIR /app
+FROM mcr.microsoft.com/appsvc/node:10-lts
 
-COPY . .
-RUN npm install
+ENV HOST 0.0.0.0
+ENV PORT 8000
+EXPOSE 8000
 
-RUN npm run build
-
-EXPOSE 80
-
-
-CMD ["npm", "run", "start:prod"]
+ENTRYPOINT ["pm2", "start", "--no-daemon", "dist/main.js"]
