@@ -80,10 +80,10 @@ jobs:
       - name: "Deploy to Azure Web App for Container"
         uses: azure/webapps-deploy@v2
         with:
+          run: echo The default environement  is ${{ inputs.environmentType }}
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           publish-profile: ${{ secrets.azureWebAppPublishProfile }}
           images: ${{ env.CONTAINER_REGISTRY }}/nodejsapp:${{ github.sha }}
-          run: echo The default environement  is ${{ inputs.environmentType }}
       #        startup-command: 'npm start'    # Include start up command to start the app container
 
       # For more samples to get started with GitHub Action workflows to deploy to Azure, refer to https://github.com/Azure/actions-workflow-samples
