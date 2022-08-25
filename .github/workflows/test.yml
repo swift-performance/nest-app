@@ -13,7 +13,6 @@ on:
         default: development
         required: true
         type: string
-     
 
 # CONFIGURATION
 # For help, go to https://github.com/Azure/Actions
@@ -84,13 +83,7 @@ jobs:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           publish-profile: ${{ secrets.azureWebAppPublishProfile }}
           images: ${{ env.CONTAINER_REGISTRY }}/nodejsapp:${{ github.sha }}
+          run: echo The default environement  is ${{ inputs.environmentType }}
       #        startup-command: 'npm start'    # Include start up command to start the app container
 
       # For more samples to get started with GitHub Action workflows to deploy to Azure, refer to https://github.com/Azure/actions-workflow-samples
-
-      - name: "check environemt"
-        uses: azure/arm-deploy@v1
-
-        with:
-          run: echo The default environement  is ${{ inputs.environmentType }}  
-          
