@@ -14,8 +14,9 @@ on:
         required: true
         type: string
       resourceGroupName:
+        description: "environment for project"
         default: testing
-        required: false
+        required: true
         type: string
 
 # CONFIGURATION
@@ -95,10 +96,10 @@ jobs:
         uses: azure/arm-deploy@v1
 
         with:
-          run: echo The default environement  is ${{ inputs.environmentType }}
+          run: echo The default environement  is ${{ inputs.environmentType }} ${{ inputs.resourceGroupName }} ${{ github.run_number }}
           failOnStdErr: false
-          deploymentName: ${{ github.run_number }}
-          resourceGroupName: ${{ inputs.resourceGroupName }}
-          template: ./deploy/main.bicep
-          parameters: >
-            environmentType=${{ inputs.environmentType }}
+        # deploymentName: ${{ github.run_number }}
+         # resourceGroupName: ${{ inputs.resourceGroupName }}
+         # template: ./deploy/main.bicep
+         # parameters: >
+           # environmentType=${{ inputs.environmentType }}
