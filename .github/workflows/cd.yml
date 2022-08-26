@@ -1,11 +1,10 @@
 name: Build and deploy Docker app to Azure
 
 on:
-  push:
-    branches:
-      - master
-      - production
-  workflow_dispatch:
+  create:
+    tags:
+      - v1-*
+      - v2-*
 
   workflow_call:
     inputs:
