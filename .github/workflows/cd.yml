@@ -50,7 +50,6 @@ jobs:
           password: ${{ secrets.REGISTRY_PASSWORD }}
       - name: Docker Build & Push to ACR
         run: |
-          cd node
           docker build . -t ${{ env.CONTAINER_REGISTRY }}/nodejsapp:${{ github.sha }}
           docker push ${{ env.CONTAINER_REGISTRY }}/nodejsapp:${{ github.sha }}
 
