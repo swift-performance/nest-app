@@ -2,6 +2,8 @@ name: Build and deploy Docker app to Azure
 
 on:
   push:
+    tags:
+      - "*''
     branches:
       - master
       - production
@@ -78,9 +80,13 @@ jobs:
             ]
 
       - name: "Deploy to Azure Web App for Container"
+        run: echo The default environement  is ${{ inputs.environmentType }}
+     
+      - name: "branch -name"
+        run: echo running on branch ${GITHUB_REF##*/}
+        
         uses: azure/webapps-deploy@v2
         with:
-          run: echo The default environement  is ${{ inputs.environmentType }}
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           publish-profile: ${{ secrets.azureWebAppPublishProfile }}
           images: ${{ env.CONTAINER_REGISTRY }}/nodejsapp:${{ github.sha }}
