@@ -1,10 +1,10 @@
 name: Build and deploy Docker app to Azure
 
 on:
-  push:
-    branches:
-      - master
-      - production
+  create:
+    tags:
+      - beta-v1*
+      - prod-v2*
 
   workflow_call:
     inputs:
@@ -29,7 +29,7 @@ env:
 jobs:
   build-and-deploy-to-dev:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environmentType }}
+    environment: ${{ needs.build.outputs.env_name }}
     steps:
       - uses: actions/checkout@master
       - name: Azure authentication
@@ -42,6 +42,21 @@ jobs:
       #         azcliversion: latest
       #         inlineScript: |
       #           az webapp create --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --plan ${{ env.AZURE_APP_PLAN }} --name ${{ env.AZURE_WEBAPP_NAME }}  -i nginx
+      - name: Some check on branch
+        id: branch_check
+        run: |
+          echo "Running on branch ${{ github.ref }}"
+          if [ "${{ github.ref }}" = "refs/heads/master" ]; then
+            echo "::set-output name=env_name::development"
+          elif [ "${{ github.ref }}" = "refs/heads/develop" ]; then
+            echo "::set-output name=env_name::production"
+          else
+            echo "::set-output name=env_name::Features"
+          fi
+
+      - name: Use variable setup in previous step
+        run: echo "I'm using variable ${{ steps.branch_check.outputs.env_name }}"
+
       - name: ACR authentication
         uses: azure/docker-login@v1
         with:
@@ -78,12 +93,15 @@ jobs:
             ]
 
       - name: "Deploy to Azure Web App for Container"
+        # run: echo The default environement  is ${{ inputs.environmentType }} branch ${GITHUB_REF##*/}
         uses: azure/webapps-deploy@v2
         with:
-          run: echo The default environement  is ${{ inputs.environmentType }}
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           publish-profile: ${{ secrets.azureWebAppPublishProfile }}
           images: ${{ env.CONTAINER_REGISTRY }}/nodejsapp:${{ github.sha }}
       #        startup-command: 'npm start'    # Include start up command to start the app container
 
       # For more samples to get started with GitHub Action workflows to deploy to Azure, refer to https://github.com/Azure/actions-workflow-samples
+
+    outputs:
+      env_name: ${{ steps.branch_check.outputs.env_name }}
