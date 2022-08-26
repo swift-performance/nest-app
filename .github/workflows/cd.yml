@@ -5,11 +5,9 @@ on:
     branches:
       - master
       - production
-
-  create:
     tags:
-      - beta-*
-      - prod-*
+      - "beta-1.*"
+  workflow_dispatch:
 
   workflow_call:
     inputs:
