@@ -4,16 +4,11 @@ on:
   create:
     tags:
       - beta-*
-      - "*"
+      - prod-*
     branches:
       - master:
-        create:
-          tags:
-            - beta-*
       - production:
-        create:
-          tags:
-            - prod-*
+
   workflow_call:
     inputs:
       environmentType:
