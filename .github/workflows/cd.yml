@@ -50,10 +50,12 @@ jobs:
           branch=${raw##*/}
           echo "::set-output name=branch::$branch"
           echo "Branch is $branch."
+            echo ${{ github.ref }}
+            ref='refs/tags/beta-'
           echo "Running on branch ${{ github.ref }} ${{ github.event.base_ref }}"
-          if startsWith(github.ref, 'refs/tags/beta'); then  
+          if [[ ${{ github.ref }} == *${ref}* ]]; then
             echo "::set-output name=env_name::development"
-          elif [ "${{ github.ref }}" = "refs/heads/master" ]; then
+          elif [ "${{ github.ref }}" = "refs/heads/production" ]; then
             echo "::set-output name=env_name::production"
           else
             echo "::set-output name=env_name::feat"
