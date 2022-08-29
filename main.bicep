@@ -3,7 +3,7 @@ param location string = resourceGroup().location
 
 @description('The type of environment. This must be nonprod or prod.')
 @allowed([
-  'nonprod'
+  'development'
   'prod'
 ])
 param environmentType string
@@ -21,7 +21,7 @@ var bicepManualsStorageAccountName = '${resourceNameSuffix}-storage-account'
 
 // Define the SKUs for each component based on the environment type.
 var environmentConfigurationMap = {
-  nonprod: {
+  development: {
     appServicePlan: {
       sku: {
         name: 'F1'
@@ -34,7 +34,7 @@ var environmentConfigurationMap = {
       }
     }
   }
-  prod: {
+  production: {
     appServicePlan: {
       sku: {
         name: 'S1'

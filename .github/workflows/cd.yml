@@ -47,9 +47,9 @@ jobs:
         run: |
           echo "Running on branch ${{ github.ref }}"
           if [ "${{ github.ref }}" = "refs/heads/master" ]; then
-            echo "::set-output name=env_name::dev"
+            echo "::set-output name=env_name::development"
           elif [ "${{ github.ref }}" = "refs/heads/production" ]; then
-            echo "::set-output name=env_name::prod"
+            echo "::set-output name=env_name::production"
           else
             echo "::set-output name=env_name::feat"
           fi
