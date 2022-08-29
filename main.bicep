@@ -1,48 +1,81 @@
-// infra.bicep
-@description('The SKU of App Service Plan')
-param planSku string = 'B1'
-
-@maxLength(8)
-@description('Name of environment')
-param env string = 'webapp'
-
-@description('Resource tags object to use')
-param resourceTag object = {
-  Environment: env
-  Application: 'Webapp'
-}
+@description('The Azure region into which the resources should be deployed.')
 param location string = resourceGroup().location
 
-var webAppName = 'app-webapp-${env}-${uniqueString(resourceGroup().id)}'
-var planName = 'plan-webapp-${env}-${uniqueString(resourceGroup().id)}'
+@description('The type of environment. This must be nonprod or prod.')
+@allowed([
+  'nonprod'
+  'prod'
+])
+param environmentType string
 
-resource appplan 'Microsoft.Web/serverfarms@2020-12-01' = {
-  name: planName
-  location: location
-  kind: 'linux'
-  sku: {
-    name: planSku
+@description('Indicates whether to deploy the storage account for bicep manuals.')
+param deploybicepManualsStorageAccount bool
+
+@description('A unique suffix to add to resource names that need to be globally unique.')
+@maxLength(13)
+param resourceNameSuffix string = uniqueString(resourceGroup().name)
+
+var appServiceAppName = '${resourceNameSuffix}-app'
+var appServicePlanName = '${resourceNameSuffix}-plan'
+var bicepManualsStorageAccountName = '${resourceNameSuffix}-storage-account'
+
+// Define the SKUs for each component based on the environment type.
+var environmentConfigurationMap = {
+  nonprod: {
+    appServicePlan: {
+      sku: {
+        name: 'F1'
+        capacity: 1
+      }
+    }
+    bicepManualsStorageAccount: {
+      sku: {
+        name: 'Standard_LRS'
+      }
+    }
   }
-  properties: {
-    reserved: true
+  prod: {
+    appServicePlan: {
+      sku: {
+        name: 'S1'
+        capacity: 2
+      }
+    }
+    bicepManualsStorageAccount: {
+      sku: {
+        name: 'Standard_ZRS'
+      }
+    }
   }
 }
+var bicepManualsStorageAccountConnectionString = deploybicepManualsStorageAccount ? 'DefaultEndpointsProtocol=https;AccountName=${bicepManualsStorageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${bicepManualsStorageAccount.listKeys().keys[0].value}' : ''
 
-resource webapp 'Microsoft.Web/sites@2020-12-01' = {
-  name: webAppName
+resource appServicePlan 'Microsoft.Web/serverFarms@2020-06-01' = {
+  name: appServicePlanName
   location: location
-  tags: resourceTag
-  kind: 'app,linux'
+  sku: environmentConfigurationMap[environmentType].appServicePlan.sku
+}
+
+resource appServiceApp 'Microsoft.Web/sites@2020-06-01' = {
+  name: appServiceAppName
+  location: location
   properties: {
-    serverFarmId: appplan.id
+    serverFarmId: appServicePlan.id
     httpsOnly: true
-    clientAffinityEnabled: false
     siteConfig: {
-      linuxFxVersion: 'NODE|14-lts'
-      alwaysOn: true
+      appSettings: [
+        {
+          name: 'bicepManualsStorageAccountConnectionString'
+          value: bicepManualsStorageAccountConnectionString
+        }
+      ]
     }
   }
 }
 
-output webAppName string = webAppName
-output webAppEndpoint string = webapp.properties.defaultHostName
+resource bicepManualsStorageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' = if (deploybicepManualsStorageAccount) {
+  name: bicepManualsStorageAccountName
+  location: location
+  kind: 'StorageV2'
+  sku: environmentConfigurationMap[environmentType].bicepManualsStorageAccount.sku
+}

@@ -21,7 +21,7 @@ on:
 #   AZURE_CREDENTIALS, REGISTRY_USERNAME, REGISTRY_PASSWORD, REGISTRY_URL
 # 2. Change these variables for your configuration:
 env:
-  AZURE_WEBAPP_NAME: test-nest-app # set this to your application's name
+  AZURE_WEBAPP_NAME: ${{ secrets.AZURE_WEBAPP_NAME }} # set this to your application's name
   CONTAINER_REGISTRY: ${{ secrets.REGISTRY_URL }} # set secret with Container Registry URL, example : xyz.azurecr.io
 # AZURE_RESOURCE_GROUP: ActionsDemo   # set this to your Azure Resource group's name - Needed only if you are provisioning the app in the workflow
 # AZURE_APP_PLAN: ActionPlan  # set this to your App service plan's name - Needed only if you are provisioning the app in the workflow
@@ -47,11 +47,11 @@ jobs:
         run: |
           echo "Running on branch ${{ github.ref }}"
           if [ "${{ github.ref }}" = "refs/heads/master" ]; then
-            echo "::set-output name=env_name::development"
+            echo "::set-output name=env_name::dev"
           elif [ "${{ github.ref }}" = "refs/heads/production" ]; then
-            echo "::set-output name=env_name::production"
+            echo "::set-output name=env_name::prod"
           else
-            echo "::set-output name=env_name::Features"
+            echo "::set-output name=env_name::feat"
           fi
 
       - name: Use variable setup in previous step
@@ -99,7 +99,9 @@ jobs:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           resourceGroupName: ${{ secrets.AZURE_RG }}
           template: ./main.bicep
-          parameters: "storagePrefix=nest-app storageSKU=Standard_LRS env=steps.branch_check.outputs.env_name "
+          parameters:
+            " storageSKU=Standard_LRS env=steps.branch_check.outputs.env_name AZURE_RESOURCE_GROUP= ${{ secrets.AZURE_RG}}
+            "
           failOnStdErr: false
           images: ${{ env.CONTAINER_REGISTRY }}/nodejsapp:${{ github.sha }}
 
