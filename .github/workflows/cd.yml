@@ -48,8 +48,8 @@ jobs:
         run: |
           raw=$(git branch -r --contains ${{ github.ref }})
           branch=${raw/origin\/}
-          echo "::set-output name=branch::$branch" 
-          echo "Branch is $branch    " 
+          echo "::env name=branch::$branch" 
+          echo "Branch is ${{ env.BRANCH }}    " 
           if [[ $branch = "dev" ]]; then
             echo "::set-output name=env_name::development"
           elif  [[ $branch = "prod" ]]; then
