@@ -52,9 +52,9 @@ jobs:
           echo "::set-output name=branch::$branch"
           echo "Branch is $branch."
           echo "Running on branch ${{ github.ref }} ${{ github.event.base_ref }}"
-          if [ "${{ github.ref }}"= "refs/tags/beta-v1*" ]; then
+          if [ "${{ github.ref }}"= "refs/heads/master" ]; then
             echo "::set-output name=env_name::development"
-          elif [ "${{ github.event.base_ref}}" = "refs/tags/beta-v1*" ]; then
+          elif [ "${{ github.ref }}" = "refs/heads/master" ]; then
             echo "::set-output name=env_name::production"
           else
             echo "::set-output name=env_name::feat"
