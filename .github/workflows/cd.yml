@@ -49,14 +49,14 @@ jobs:
           raw=$(git branch -r --contains ${{ github.ref }})
           branch=${raw/origin\/}
           echo "::set-output name=branch::$branch" 
-          echo "Branch is $branch  or ${{ secrets.AZURE_WEBAPP_NAME }} " 
+          echo "Branch is $branch    " 
           if [[ $branch = "dev" ]]; then
             echo "::set-output name=env_name::development"
-          else  [[ $branch = "prod" ]]; then
+          elif  [[ $branch = "prod" ]]; then
             echo "::set-output name=env_name::production"
-        # else
-        # echo "::set-output name=env_name::feat"
-        # fi
+          else
+          echo "::set-output name=env_name::feat"
+          fi
 
       - name: Use variable setup in previous step
         run: echo "I'm using variable ${{ steps.branch_check.outputs.env_name }}"
