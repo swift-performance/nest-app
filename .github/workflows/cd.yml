@@ -33,7 +33,6 @@ jobs:
     environment: ${{ needs.build.outputs.env_name }}
     steps:
       - uses: actions/checkout@master
-        run: echo "${{ github.event.base_ref }}"
       - name: Azure authentication
         uses: azure/login@v1
         with:
