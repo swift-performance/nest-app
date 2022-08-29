@@ -2,6 +2,7 @@ name: Build and deploy Docker app to Azure
 
 on:
   create:
+  push:
     tags:
       - beta-v1*
       - prod-v2*
@@ -45,10 +46,14 @@ jobs:
       - name: Some check on branch
         id: branch_check
         run: |
+          raw=$(git branch -r --contains ${{ github.ref }})
+          branch=${raw##*/}
+          echo "::set-output name=branch::$branch"
+          echo "Branch is $branch."
           echo "Running on branch ${{ github.ref }} ${{ github.event.base_ref }}"
-          if [ "${{ github.event.base_ref }}" = "refs/heads/master" ]; then
+          if [ "${{ github.event.base_ref }}" = "refs/tags/beta-v1*" ]; then
             echo "::set-output name=env_name::development"
-          elif [ "${{ github.event.base_ref}}" = "refs/heads/production" ]; then
+          elif [ "${{ github.event.base_ref}}" = "refs/tags/beta-v1*" ]; then
             echo "::set-output name=env_name::production"
           else
             echo "::set-output name=env_name::feat"
