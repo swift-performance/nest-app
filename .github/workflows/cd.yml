@@ -49,8 +49,8 @@ jobs:
           raw=$(git branch -r --contains ${{ github.ref }})
           branch=${raw/origin\/}
           echo "::set-output name=branch::$branch" 
-          echo "Branch is $branch.  ${{ env.AZURE_WEBAPP_NAME }} or ${{ secrets.AZURE_WEBAPP_NAME }} " 
-          if [[ $branch = "beta" ]]; then
+          echo "Branch is $branch  or ${{ secrets.AZURE_WEBAPP_NAME }} " 
+          if [[ $branch = "dev" ]]; then
             echo "::set-output name=env_name::development"
           else  [[ $branch = "prod" ]]; then
             echo "::set-output name=env_name::production"
