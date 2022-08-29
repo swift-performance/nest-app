@@ -1,11 +1,11 @@
 name: Build and deploy Docker app to Azure
 
 on:
+  create:
   push:
-    branches:
-      - master
-  ## push:
-  ### - prod-v2*
+    tags:
+      - "dev-v2*"
+      - "prod-v2*"
 
   workflow_call:
     inputs:
@@ -47,19 +47,16 @@ jobs:
         id: branch_check
         run: |
           raw=$(git branch -r --contains ${{ github.ref }})
-          branch=${raw##*/}
-          echo "::set-output name=branch::$branch"
-          echo "Branch is $branch."
-            echo ${{ github.ref }}
-            ref='refs/tags/beta-'
-          echo "Running on branch ${{ github.ref }} ${{ github.event.base_ref }}"
-          if [[ ${{ github.ref }} == *${ref}* ]]; then
+          branch=${raw/origin\/}
+          echo "::set-output name=branch::$branch" 
+          echo "Branch is $branch.  ${{ env.AZURE_WEBAPP_NAME }} or ${{ secrets.AZURE_WEBAPP_NAME }} " 
+          if [[ $branch = "beta" ]]; then
             echo "::set-output name=env_name::development"
-          elif [ "${{ github.ref }}" = "refs/heads/production" ]; then
+          else  [[ $branch = "prod" ]]; then
             echo "::set-output name=env_name::production"
-          else
-            echo "::set-output name=env_name::feat"
-          fi
+        # else
+        # echo "::set-output name=env_name::feat"
+        # fi
 
       - name: Use variable setup in previous step
         run: echo "I'm using variable ${{ steps.branch_check.outputs.env_name }}"
@@ -78,6 +75,8 @@ jobs:
       # Uncomment the below action snippet if the Web app credentials are not updated as web app settings
       - name: Set Web App ACR authentication
         uses: Azure/appservice-settings@v1
+        env:
+          app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           app-settings-json: |
