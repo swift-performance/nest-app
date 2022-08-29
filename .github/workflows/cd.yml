@@ -96,10 +96,12 @@ jobs:
         # run: echo The default environement  is ${{ inputs.environmentType }} branch ${GITHUB_REF##*/}
         uses: azure/webapps-deploy@v2
         with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          publish-profile: ${{ secrets.azureWebAppPublishProfile }}
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+          resourceGroupName: ${{ secrets.AZURE_RG }}
+          template: ./main.bicep
+          parameters: "storagePrefix=nest-app storageSKU=Standard_LRS env=steps.branch_check.outputs.env_name "
+          failOnStdErr: false
           images: ${{ env.CONTAINER_REGISTRY }}/nodejsapp:${{ github.sha }}
-      #        startup-command: 'npm start'    # Include start up command to start the app container
 
       # For more samples to get started with GitHub Action workflows to deploy to Azure, refer to https://github.com/Azure/actions-workflow-samples
 
