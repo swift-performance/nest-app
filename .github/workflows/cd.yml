@@ -45,10 +45,10 @@ jobs:
       - name: Some check on branch
         id: branch_check
         run: |
-          echo "Running on branch ${{ github.ref }}"
-          if [ "${{ github.ref }}" = "refs/heads/master" ]; then
+          echo "Running on branch ${{ github.ref }} ${{ github.event.base_ref }}"
+          if [ "${{ github.event.base_ref }}" = "refs/heads/master" ]; then
             echo "::set-output name=env_name::development"
-          elif [ "${{ github.ref }}" = "refs/heads/production" ]; then
+          elif [ "${{ github.event.base_ref}}" = "refs/heads/production" ]; then
             echo "::set-output name=env_name::production"
           else
             echo "::set-output name=env_name::feat"
