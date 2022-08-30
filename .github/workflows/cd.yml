@@ -49,7 +49,7 @@ jobs:
           raw=$(git branch -r --contains ${{ github.ref }})
           branch=${raw/origin\/}
           echo "::env name=BRANCH::$branch" 
-          echo "Branch is ${{ env.BRANCH }}    " 
+          echo "Branch is ${{ env.BRANCH }}  ${{ secrets.AZURE_WEBAPP_NAME }} ${{ secrets.AZURE_RG}}   " 
           if [[ $branch = "dev" ]]; then
             echo "::set-output name=env_name::development"
           elif  [[ $branch = "prod" ]]; then
@@ -106,8 +106,7 @@ jobs:
           resourceGroupName: ${{ secrets.AZURE_RG }}
           template: ./main.bicep
           parameters:
-            " storageSKU=Standard_LRS env=steps.branch_check.outputs.env_name AZURE_RESOURCE_GROUP= ${{ secrets.AZURE_RG}}
-            "
+            " storageSKU=Standard_LRS env=steps.branch_check.outputs.env_name AZURE_RESOURCE_GROUP= ${{ secrets.AZURE_RG}}"
           failOnStdErr: false
           images: ${{ env.CONTAINER_REGISTRY }}/nodejsapp:${{ github.sha }}
 
