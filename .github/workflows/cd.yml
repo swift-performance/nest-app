@@ -28,7 +28,7 @@ jobs:
         run: |
           if [[ ${{ secrets.APP_ENV }} == 'dev' ]]; then
             echo "::set-output name=env_name::master"
-          elif  [[ ${{ secrets.APP_ENV }} == 'prod']]; then
+          elif  [[ ${{ secrets.APP_ENV }} == 'prod' ]]; then
             echo "::set-output name=env_name::production"
           else
           echo "::set-output name=env_name::feat"
