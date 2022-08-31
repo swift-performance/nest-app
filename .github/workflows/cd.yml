@@ -16,7 +16,7 @@ env:
 # AZURE_APP_PLAN: ActionPlan  # set this to your App service plan's name - Needed only if you are provisioning the app in the workflow
 
 jobs:
-  build-and-deploy-to-dev:
+  build:
     runs-on: ubuntu-latest
     # environment: ${{ env.APP_ENVIRONMENT}}
     steps:
@@ -56,8 +56,8 @@ jobs:
           password: ${{ secrets.REGISTRY_PASSWORD }}
       - name: Docker Build & Push to ACR
         run: |
-          docker build . -t ${{ env.CONTAINER_REGISTRY }}/nodejsapp:${{ github.sha }}
-          docker push ${{ env.CONTAINER_REGISTRY }}/nodejsapp:${{ github.sha }}
+          docker build . -t ${{ env.CONTAINER_REGISTRY }}/nest-app:${{ github.sha }}
+          docker push ${{ env.CONTAINER_REGISTRY }}/nest-app:${{ github.sha }}
 
       # Uncomment the below action snippet if the Web app credentials are not updated as web app settings
       - name: Set Web App ACR authentication
@@ -87,7 +87,60 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          images: ${{ env.CONTAINER_REGISTRY }}/nodejsapp:${{ github.sha }}
-#         startup-command: 'npm start'    # Include start up command to start the app container
+          images: ${{ env.CONTAINER_REGISTRY }}/nest-app:${{ github.sha }}
+  #         startup-command: 'npm start'    # Include start up command to start the app container
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy bicep
+        uses: azure/CLI@v1
+        if: github.event_name != 'pull_request'
+        with:
+          inlineScript: |
+            tags='{"owner":"swift-sandeep", "email":"sandeep@swiftperformannce.com"}'
+            az deployment group create \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --template-file ./main.bicep \
+              --parameters \
+                  nodeImage='${{ needs.build.outputs.containerImage-node }}' \
+                  nodePort=3000 \
+                  nodeIsExternalIngress=true \
+                  containerRegistry=${{ env.REGISTRY }} \
+                  containerRegistryUsername=${{ github.actor }} \
+                  containerRegistryPassword=${{ secrets.PACKAGES_TOKEN }} \
+                  tags="$tags" \
+                  APPSETTINGS_DOMAIN="${{ secrets.APPSETTINGS_DOMAIN }}" \
+                  APPSETTINGS_FROM_EMAIL="${{ secrets.APPSETTINGS_FROM_EMAIL }}" \
+                  APPSETTINGS_RECIPIENT_EMAIL="${{ secrets.APPSETTINGS_RECIPIENT_EMAIL }}"
+
+      - name: What-if bicep
+        uses: azure/CLI@v1
+        if: github.event_name == 'pull_request'
+        with:
+          inlineScript: |
+            tags='{"owner":"swift-sandeep", "email":"sandeep@swiftperformannce.com"}'
+            az deployment group what-if \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --template-file ./main.bicep \
+              --parameters \
+                  nodeImage='${{ needs.build.outputs.containerImage-node }}' \
+                  nodePort=3000 \
+                  nodeIsExternalIngress=true \
+                  containerRegistry=${{ env.REGISTRY }} \
+                  containerRegistryUsername=${{ github.actor }} \
+                  containerRegistryPassword=${{ secrets.PACKAGES_TOKEN }} \
+                  tags="$tags" \
+                  APPSETTINGS_DOMAIN="${{ secrets.APPSETTINGS_DOMAIN }}" \
+                  APPSETTINGS_FROM_EMAIL="${{ secrets.APPSETTINGS_FROM_EMAIL }}" \
+                  APPSETTINGS_RECIPIENT_EMAIL="${{ secrets.APPSETTINGS_RECIPIENT_EMAIL }}"
 
 # For more samples to get started with GitHub Action workflows to deploy to Azure, refer to https://github.com/Azure/actions-workflow-samples
