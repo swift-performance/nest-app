@@ -69,17 +69,17 @@ jobs:
                 {
                     "name": "DOCKER_REGISTRY_SERVER_PASSWORD",
                     "value": "${{ secrets.REGISTRY_PASSWORD }}",
-                    "slotSetting": false
+                    "slotSetting": true
                 },
                 {
                     "name": "DOCKER_REGISTRY_SERVER_URL",
                     "value": "https://${{ env.CONTAINER_REGISTRY }}",
-                    "slotSetting": false
+                    "slotSetting": true
                 },
                 {
                     "name": "DOCKER_REGISTRY_SERVER_USERNAME",
                     "value": "${{ secrets.REGISTRY_USERNAME  }}",
-                    "slotSetting": false
+                    "slotSetting": true
                }
             ]
 

@@ -1,81 +1,124 @@
-@description('The Azure region into which the resources should be deployed.')
-param location string = resourceGroup().location
+param nodeImage string
+param nodePort int
+param nodeIsExternalIngress bool
 
-@description('The type of environment. This must be nonprod or prod.')
-@allowed([
-  'development'
-  'prod'
-])
-param environmentType string
+param containerRegistry string
+param containerRegistryUsername string
+@secure()
+param containerRegistryPassword string
 
-@description('Indicates whether to deploy the storage account for bicep manuals.')
-param deploybicepManualsStorageAccount bool
+param tags object
 
-@description('A unique suffix to add to resource names that need to be globally unique.')
-@maxLength(13)
-param resourceNameSuffix string = uniqueString(resourceGroup().name)
+@secure()
+param APPSETTINGS_DOMAIN string
+param APPSETTINGS_FROM_EMAIL string
+param APPSETTINGS_RECIPIENT_EMAIL string
 
-var appServiceAppName = '${resourceNameSuffix}-app'
-var appServicePlanName = '${resourceNameSuffix}-plan'
-var bicepManualsStorageAccountName = '${resourceNameSuffix}-storage-account'
+var location = resourceGroup().location
+var environmentName = 'env-${uniqueString(resourceGroup().id)}'
+var minReplicas = 0
 
-// Define the SKUs for each component based on the environment type.
-var environmentConfigurationMap = {
-  development: {
-    appServicePlan: {
-      sku: {
-        name: 'F1'
-        capacity: 1
-      }
-    }
-    bicepManualsStorageAccount: {
-      sku: {
-        name: 'Standard_LRS'
-      }
-    }
-  }
-  production: {
-    appServicePlan: {
-      sku: {
-        name: 'S1'
-        capacity: 2
-      }
-    }
-    bicepManualsStorageAccount: {
-      sku: {
-        name: 'Standard_ZRS'
-      }
-    }
-  }
-}
-var bicepManualsStorageAccountConnectionString = deploybicepManualsStorageAccount ? 'DefaultEndpointsProtocol=https;AccountName=${bicepManualsStorageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${bicepManualsStorageAccount.listKeys().keys[0].value}' : ''
+var nodeServiceAppName = 'node-app'
+var workspaceName = '${nodeServiceAppName}-log-analytics'
+var appInsightsName = '${nodeServiceAppName}-app-insights'
 
-resource appServicePlan 'Microsoft.Web/serverFarms@2020-06-01' = {
-  name: appServicePlanName
+var containerRegistryPasswordRef = 'container-registry-password'
+
+resource workspace 'Microsoft.OperationalInsights/workspaces@2021-12-01-preview' = {
+  name: workspaceName
   location: location
-  sku: environmentConfigurationMap[environmentType].appServicePlan.sku
+  tags: tags
+  properties: {
+    sku: {
+      name: 'PerGB2018'
+    }
+    retentionInDays: 30
+    workspaceCapping: {}
+  }
 }
 
-resource appServiceApp 'Microsoft.Web/sites@2020-06-01' = {
-  name: appServiceAppName
+resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
+  name: appInsightsName
+  location: location
+  tags: tags
+  kind: 'web'
+  properties: {
+    Application_Type: 'web'
+    Flow_Type: 'Bluefield'
+  }
+}
+
+resource environment 'Microsoft.App/managedEnvironments@2022-01-01-preview' = {
+  name: environmentName
+  location: location
+  tags: tags
+  properties: {
+    appLogsConfiguration: {
+      destination: 'log-analytics'
+      logAnalyticsConfiguration: {
+        customerId: workspace.properties.customerId
+        sharedKey: listKeys(workspace.id, workspace.apiVersion).primarySharedKey
+      }
+    }
+    containerAppsConfiguration: {
+      daprAIInstrumentationKey: appInsights.properties.InstrumentationKey
+    }
+  }
+}
+
+resource containerApp 'Microsoft.App/containerApps@2022-01-01-preview' = {
+  name: nodeServiceAppName
+  kind: 'containerapps'
+  tags: tags
   location: location
   properties: {
-    serverFarmId: appServicePlan.id
-    httpsOnly: true
-    siteConfig: {
-      appSettings: [
+    managedEnvironmentId: environment.id
+    configuration: {
+      secrets: [
         {
-          name: 'bicepManualsStorageAccountConnectionString'
-          value: bicepManualsStorageAccountConnectionString
+          name: containerRegistryPasswordRef
+          value: containerRegistryPassword
+        }
+
+      ]
+      registries: [
+        {
+          server: containerRegistry
+          username: containerRegistryUsername
+          passwordSecretRef: containerRegistryPasswordRef
         }
       ]
+      ingress: {
+        'external': nodeIsExternalIngress
+        'targetPort': nodePort
+      }
+    }
+    template: {
+      containers: [
+        {
+          image: nodeImage
+          name: nodeServiceAppName
+          transport: 'auto'
+          env: [
+
+            {
+              name: 'APPSETTINGS_DOMAIN'
+              value: APPSETTINGS_DOMAIN
+            }
+            {
+              name: 'APPSETTINGS_FROM_EMAIL'
+              value: APPSETTINGS_FROM_EMAIL
+            }
+            {
+              name: 'APPSETTINGS_RECIPIENT_EMAIL'
+              value: APPSETTINGS_RECIPIENT_EMAIL
+            }
+          ]
+        }
+      ]
+      scale: {
+        minReplicas: minReplicas
+      }
     }
   }
-}
-
-resource bicepManualsStorageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' = if (deploybicepManualsStorageAccount) {
-  name: bicepManualsStorageAccountName
-  location: location
-  kind: 'StorageV2'
-  sku: environmentConfigurationMap[environmentType].bicepManualsStorageAccount.sku
 }
