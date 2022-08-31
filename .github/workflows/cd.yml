@@ -17,8 +17,20 @@ env:
 jobs:
   build-and-deploy-to-dev:
     runs-on: ubuntu-latest
-    environment: dev
+    environment: ${{ secrets.ENVIRONEMENT }}
     steps:
+      - name: Some check on branch
+        run: |
+          if [[ ${{ secrets.ENVIRONEMENT }} = "dev" ]]; then
+            echo "::set-output name=env_name::master"
+          elif  [[ ${{ secrets.ENVIRONEMENT }} = "prod" ]]; then
+            echo "::set-output name=env_name::production"
+          else
+          echo "::set-output name=env_name::feat"
+          fi
+      - name: Use variable setup in previous step
+        run: echo "I'm using variable ${{ steps.branch_check.outputs.env_name }}
+
       - uses: actions/checkout@master
       - name: Azure authentication
         uses: azure/login@v1
