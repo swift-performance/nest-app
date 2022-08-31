@@ -15,7 +15,7 @@ on:
 
 env:
   RESOURCE_GROUP: nest-app
-  REGISTRY: ghcr.io
+  REGISTRY: swiftcontainer.azurecr.io
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
