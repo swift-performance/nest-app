@@ -24,7 +24,7 @@ jobs:
           echo get git env.APP_ENVIRONMENT
         env:
           environment: ${{ secrets.APP_ENV }}
-      - name: Some check on branch
+      - name: Some check on branch name
         id: branch_check
         run: |
           if [[ ${{ secrets.APP_ENV }} == 'dev' ]]; then
