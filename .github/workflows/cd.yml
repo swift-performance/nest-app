@@ -35,7 +35,7 @@ jobs:
           echo "::set-output name=env_name::feat"
           fi
       - name: Use variable setup in previous step
-        run: echo "I'm using variable ${{ steps.branch_check.outputs.env_name }}
+        run: echo "I'm using variable ${{ steps.branch_check.outputs.env_name }}"
 
       - uses: actions/checkout@master
       - name: Azure authentication
