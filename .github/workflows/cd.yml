@@ -1,19 +1,6 @@
 name: Build and deploy Docker app to Azure
 
-on:
-  create:
-  push:
-    tags:
-      - "dev-v2*"
-      - "prod-v2*"
-
-  workflow_call:
-    inputs:
-      environmentType:
-        description: "environment for project"
-        default: development
-        required: true
-        type: string
+on: push
 
 # CONFIGURATION
 # For help, go to https://github.com/Azure/Actions
@@ -22,7 +9,7 @@ on:
 #   AZURE_CREDENTIALS, REGISTRY_USERNAME, REGISTRY_PASSWORD, REGISTRY_URL
 # 2. Change these variables for your configuration:
 env:
-  AZURE_WEBAPP_NAME: ${{ secrets.AZURE_WEBAPP_NAME }} # set this to your application's name
+  AZURE_WEBAPP_NAME: ${{ secrets.APP_NAME_BETA }} # set this to your application's name
   CONTAINER_REGISTRY: ${{ secrets.REGISTRY_URL }} # set secret with Container Registry URL, example : xyz.azurecr.io
 # AZURE_RESOURCE_GROUP: ActionsDemo   # set this to your Azure Resource group's name - Needed only if you are provisioning the app in the workflow
 # AZURE_APP_PLAN: ActionPlan  # set this to your App service plan's name - Needed only if you are provisioning the app in the workflow
@@ -30,7 +17,7 @@ env:
 jobs:
   build-and-deploy-to-dev:
     runs-on: ubuntu-latest
-    environment: ${{ needs.build.outputs.env_name }}
+    environment: dev
     steps:
       - uses: actions/checkout@master
       - name: Azure authentication
@@ -43,24 +30,6 @@ jobs:
       #         azcliversion: latest
       #         inlineScript: |
       #           az webapp create --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --plan ${{ env.AZURE_APP_PLAN }} --name ${{ env.AZURE_WEBAPP_NAME }}  -i nginx
-      - name: Some check on branch
-        id: branch_check
-        run: |
-          raw=$(git branch -r --contains ${{ github.ref }})
-          branch=${raw/origin\/}
-          echo "::env name=BRANCH::$branch" 
-          echo "Branch is ${{ env.BRANCH }}    " 
-          if [[ $branch = "dev" ]]; then
-            echo "::set-output name=env_name::development"
-          elif  [[ $branch = "prod" ]]; then
-            echo "::set-output name=env_name::production"
-          else
-          echo "::set-output name=env_name::feat"
-          fi
-
-      - name: Use variable setup in previous step
-        run: echo "I'm using variable ${{ steps.branch_check.outputs.env_name }}"
-
       - name: ACR authentication
         uses: azure/docker-login@v1
         with:
@@ -85,7 +54,7 @@ jobs:
                     "slotSetting": false
                 },
                 {
-                   "name": "DOCKER_REGISTRY_SERVER_URL",
+                    "name": "DOCKER_REGISTRY_SERVER_URL",
                     "value": "https://${{ env.CONTAINER_REGISTRY }}",
                     "slotSetting": false
                 },
@@ -93,21 +62,14 @@ jobs:
                     "name": "DOCKER_REGISTRY_SERVER_USERNAME",
                     "value": "${{ secrets.REGISTRY_USERNAME  }}",
                     "slotSetting": false
-                }
+               }
             ]
 
       - name: "Deploy to Azure Web App for Container"
-        # run: echo The default environement  is ${{ inputs.environmentType }} branch ${GITHUB_REF##*/}
         uses: azure/webapps-deploy@v2
         with:
-          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
-          resourceGroupName: ${{ secrets.AZURE_RG }}
-          template: ./main.bicep
-          parameters: " storageSKU=Standard_LRS env=steps.branch_check.outputs.env_name AZURE_RESOURCE_GROUP= ${{ secrets.AZURE_RG}}"
-          failOnStdErr: false
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
           images: ${{ env.CONTAINER_REGISTRY }}/nodejsapp:${{ github.sha }}
+#         startup-command: 'npm start'    # Include start up command to start the app container
 
-      # For more samples to get started with GitHub Action workflows to deploy to Azure, refer to https://github.com/Azure/actions-workflow-samples
-
-    outputs:
-      env_name: ${{ steps.branch_check.outputs.env_name }}
+# For more samples to get started with GitHub Action workflows to deploy to Azure, refer to https://github.com/Azure/actions-workflow-samples
