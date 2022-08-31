@@ -21,6 +21,7 @@ var minReplicas = 0
 var nodeServiceAppName = 'node-app'
 var appInsightsName = '${nodeServiceAppName}-app-insights'
 
+var workspaceName = '${nodeServiceAppName}-log-analytics'
 var containerRegistryPasswordRef = 'container-registry-password'
 
 resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
@@ -33,14 +34,32 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
     Flow_Type: 'Bluefield'
   }
 }
-
-resource environment 'Microsoft.App/managedEnvironments@2022-01-01-preview' = {
-  name: environmentName
+resource workspace 'Microsoft.OperationalInsights/workspaces@2021-12-01-preview' = {
+  name: workspaceName
   location: location
   tags: tags
   properties: {
+    sku: {
+      name: 'PerGB2018'
+    }
+    retentionInDays: 30
+    workspaceCapping: {}
+  }
+}
+resource environment 'Microsoft.Web/kubeEnvironments@2021-03-01' = {
+  name: environmentName
+  location: location
+  tags: tags
+  kind: 'containerenvironment'
+  properties: {
+    environmentType: 'managed'
+    internalLoadBalancerEnabled: false
     appLogsConfiguration: {
       destination: 'log-analytics'
+      logAnalyticsConfiguration: {
+        customerId: workspace.properties.customerId
+        sharedKey: workspace.listKeys().primarySharedKey
+      }
     }
     containerAppsConfiguration: {
       daprAIInstrumentationKey: appInsights.properties.InstrumentationKey
@@ -48,7 +67,7 @@ resource environment 'Microsoft.App/managedEnvironments@2022-01-01-preview' = {
   }
 }
 
-resource containerApp 'Microsoft.App/containerApps@2022-01-01-preview' = {
+resource containerApp 'Microsoft.Web/containerApps@2022-03-01' = {
   name: nodeServiceAppName
   kind: 'containerapps'
   tags: tags
