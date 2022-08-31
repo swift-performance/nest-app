@@ -25,6 +25,7 @@ jobs:
         env:
           environment: ${{ secrets.APP_ENV }}
       - name: Some check on branch
+        id: branch_check
         run: |
           if [[ ${{ secrets.APP_ENV }} == 'dev' ]]; then
             echo "::set-output name=env_name::master"
