@@ -19,23 +19,9 @@ var environmentName = 'env-${uniqueString(resourceGroup().id)}'
 var minReplicas = 0
 
 var nodeServiceAppName = 'node-app'
-var workspaceName = '${nodeServiceAppName}-log-analytics'
 var appInsightsName = '${nodeServiceAppName}-app-insights'
 
 var containerRegistryPasswordRef = 'container-registry-password'
-
-resource workspace 'Microsoft.OperationalInsights/workspaces@2021-12-01-preview' = {
-  name: workspaceName
-  location: location
-  tags: tags
-  properties: {
-    sku: {
-      name: 'PerGB2018'
-    }
-    retentionInDays: 30
-    workspaceCapping: {}
-  }
-}
 
 resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
   name: appInsightsName
