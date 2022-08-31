@@ -42,7 +42,7 @@ jobs:
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.PACKAGES_TOKEN }}
 
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
@@ -110,7 +110,7 @@ jobs:
         if: github.event_name == 'pull_request'
         with:
           inlineScript: |
-            tags='{"owner":"johnnyreilly", "email":"johnny_reilly@hotmail.com"}'
+            tags='{"owner":"swift-sandeep", "email":"sandeep@swiftperformannce.com"}'
             az deployment group what-if \
               --resource-group ${{ env.RESOURCE_GROUP }} \
               --template-file ./main.bicep \
