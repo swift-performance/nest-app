@@ -48,7 +48,7 @@ resource workspace 'Microsoft.OperationalInsights/workspaces@2021-12-01-preview'
 }
 resource environment 'Microsoft.Web/kubeEnvironments@2021-03-01' = {
   name: environmentName
-  location: location
+  location: 'eastus'
   tags: tags
   kind: 'containerenvironment'
   properties: {
