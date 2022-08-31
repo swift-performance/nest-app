@@ -11,19 +11,20 @@ on: push
 env:
   AZURE_WEBAPP_NAME: ${{ secrets.APP_NAME_BETA }} # set this to your application's name
   CONTAINER_REGISTRY: ${{ secrets.REGISTRY_URL }} # set secret with Container Registry URL, example : xyz.azurecr.io
+  APP_ENVIRONMENT: ${{ secrets.ENVIRONEMENT }}
 # AZURE_RESOURCE_GROUP: ActionsDemo   # set this to your Azure Resource group's name - Needed only if you are provisioning the app in the workflow
 # AZURE_APP_PLAN: ActionPlan  # set this to your App service plan's name - Needed only if you are provisioning the app in the workflow
 
 jobs:
   build-and-deploy-to-dev:
     runs-on: ubuntu-latest
-    environment: ${{ secrets.ENVIRONEMENT }}
+    environment: ${{ env.APP_ENVIRONMENT}}
     steps:
       - name: Some check on branch
         run: |
-          if [[ ${{ secrets.ENVIRONEMENT }} = "dev" ]]; then
+          if [[ ${{ env.APP_ENVIRONMENT }} = "dev" ]]; then
             echo "::set-output name=env_name::master"
-          elif  [[ ${{ secrets.ENVIRONEMENT }} = "prod" ]]; then
+          elif  [[ ${{ env.APP_ENVIRONMENT }} = "prod" ]]; then
             echo "::set-output name=env_name::production"
           else
           echo "::set-output name=env_name::feat"
