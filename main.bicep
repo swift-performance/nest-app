@@ -41,10 +41,6 @@ resource environment 'Microsoft.App/managedEnvironments@2022-01-01-preview' = {
   properties: {
     appLogsConfiguration: {
       destination: 'log-analytics'
-      logAnalyticsConfiguration: {
-        customerId: workspace.properties.customerId
-        sharedKey: listKeys(workspace.id, workspace.apiVersion).primarySharedKey
-      }
     }
     containerAppsConfiguration: {
       daprAIInstrumentationKey: appInsights.properties.InstrumentationKey
