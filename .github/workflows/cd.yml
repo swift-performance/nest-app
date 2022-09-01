@@ -24,6 +24,11 @@ jobs:
       matrix:
         services:
           [{ "imageName": "node-service", "directory": "./node-service" }]
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      containerImage-node: ${{ steps.image-tag.outputs.image-node-service }}
     # environment: ${{ env.APP_ENVIRONMENT}}
     steps:
       - run: |
@@ -127,9 +132,9 @@ jobs:
                   containerRegistryUsername=${{ secrets.REGISTRY_USERNAME }} \
                   containerRegistryPassword=${{ secrets.REGISTRY_PASSWORD }} \
                   tags="$tags" \
-                  APPSETTINGS_DOMAIN="${{ secrets.APPSETTINGS_DOMAIN }}" \
-                  APPSETTINGS_FROM_EMAIL="${{ secrets.APPSETTINGS_FROM_EMAIL }}" \
-                  APPSETTINGS_RECIPIENT_EMAIL="${{ secrets.APPSETTINGS_RECIPIENT_EMAIL }}"
+                  APPSETTINGS_DOMAIN=${{ secrets.APPSETTINGS_DOMAIN }} \
+                  APPSETTINGS_FROM_EMAIL=${{ secrets.APPSETTINGS_FROM_EMAIL }} \
+                  APPSETTINGS_RECIPIENT_EMAIL=${{ secrets.APPSETTINGS_RECIPIENT_EMAIL }}
 
       - name: What-if bicep
         uses: azure/CLI@v1
@@ -144,12 +149,12 @@ jobs:
                   nodeImage='${{ needs.build.outputs.containerImage-node }}' \
                   nodePort=3000 \
                   nodeIsExternalIngress=true \
-                  containerRegistry=${{ env.REGISTRY }} \
-                  containerRegistryUsername=${{ github.actor }} \
-                  containerRegistryPassword=${{ secrets.PACKAGES_TOKEN }} \
-                  tags="$tags" \
-                  APPSETTINGS_DOMAIN="${{ secrets.APPSETTINGS_DOMAIN }}" \
-                  APPSETTINGS_FROM_EMAIL="${{ secrets.APPSETTINGS_FROM_EMAIL }}" \
-                  APPSETTINGS_RECIPIENT_EMAIL="${{ secrets.APPSETTINGS_RECIPIENT_EMAIL }}"
+                  containerRegistry=${{ env.CONTAINER_REGISTRY }} \
+                  containerRegistryUsername=${{ secrets.REGISTRY_USERNAME }} \
+                  containerRegistryPassword=${{ secrets.REGISTRY_PASSWORD }} \
+                  tags="$tags" \ 
+                  APPSETTINGS_DOMAIN=${{ secrets.APPSETTINGS_DOMAIN }} \
+                  APPSETTINGS_FROM_EMAIL=${{ secrets.APPSETTINGS_FROM_EMAIL }} \
+                  APPSETTINGS_RECIPIENT_EMAIL=${{ secrets.APPSETTINGS_RECIPIENT_EMAIL }}
 
 # For more samples to get started with GitHub Action workflows to deploy to Azure, refer to https://github.com/Azure/actions-workflow-samples
