@@ -48,7 +48,7 @@ resource workspace 'Microsoft.OperationalInsights/workspaces@2021-12-01-preview'
 }
 resource environment 'Microsoft.web/managedEnvironments@2022-01-01-preview' = {
   name: environmentName
-  location: lcoation
+  location: location
   tags: tags
   properties: {
     appLogsConfiguration: {
