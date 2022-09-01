@@ -46,7 +46,7 @@ resource workspace 'Microsoft.OperationalInsights/workspaces@2021-12-01-preview'
     workspaceCapping: {}
   }
 }
-resource environment 'Microsoft.web/managedEnvironments@2022-01-01-preview' = {
+resource environment 'Microsoft.Web/kubeEnvironments@2022-03-01' = {
   name: environmentName
   location: location
   tags: tags
@@ -55,7 +55,7 @@ resource environment 'Microsoft.web/managedEnvironments@2022-01-01-preview' = {
       destination: 'log-analytics'
       logAnalyticsConfiguration: {
         customerId: workspace.properties.customerId
-        sharedKey: listKeys(workspace.id, workspace.apiVersion).primarySharedKey
+        sharedKey: workspace.listKeys().primarySharedKey
       }
     }
     containerAppsConfiguration: {
