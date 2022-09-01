@@ -71,7 +71,7 @@ resource containerApp 'Microsoft.Web/containerApps@2022-03-01' = {
   name: nodeServiceAppName
   kind: 'containerapps'
   tags: tags
-  location: location
+  location: 'eastus'
   properties: {
     managedEnvironmentId: environment.id
     configuration: {
