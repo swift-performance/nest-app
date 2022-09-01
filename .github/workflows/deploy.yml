@@ -36,9 +36,9 @@ jobs:
 
       # Login against a Docker registry except on PR
       # https://github.com/docker/login-action
-      - name: Log into registry ${{ env.REGISTRY }}
+      - name: Log into registry ${{ env.REGISTRY }} ACR authentication
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v1
+        uses: azure/docker-login@v1
         with:
           registry: ${{ env.CONTAINER_REGISTRY }}
           username: ${{ secrets.REGISTRY_USERNAME }}
@@ -98,8 +98,8 @@ jobs:
                   nodePort=3000 \
                   nodeIsExternalIngress=true \
                   containerRegistry=${{ env.REGISTRY }} \
-                  containerRegistryUsername=${{ github.actor }} \
-                  containerRegistryPassword=${{ secrets.PACKAGES_TOKEN }} \
+                  containerRegistryUsername=${{ secrets.REGISTRY_USERNAME }} \
+                  containerRegistryPassword=${{ secrets.REGISTRY_PASSWORD }} \
                   tags="$tags" \
                   APPSETTINGS_DOMAIN="${{ secrets.APPSETTINGS_DOMAIN }}" \
                   APPSETTINGS_FROM_EMAIL="${{ secrets.APPSETTINGS_FROM_EMAIL }}" \
