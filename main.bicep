@@ -1,3 +1,6 @@
+@description('Specifies the location for resources.')
+param location2 string = 'eastus'
+
 param nodeImage string
 param nodePort int
 param nodeIsExternalIngress bool
@@ -48,7 +51,7 @@ resource workspace 'Microsoft.OperationalInsights/workspaces@2021-12-01-preview'
 }
 resource environment 'Microsoft.Web/kubeEnvironments@2022-03-01' = {
   name: environmentName
-  location: location
+  location: location2
   tags: tags
   properties: {
     appLogsConfiguration: {
@@ -68,9 +71,9 @@ resource containerApp 'Microsoft.Web/containerApps@2022-03-01' = {
   name: nodeServiceAppName
   kind: 'containerapps'
   tags: tags
-  location: 'eastus'
+  location: location2
   properties: {
-    managedEnvironmentId: environment.id
+    kubeEnvironmentId: environment.id
     configuration: {
       secrets: [
         {
@@ -87,8 +90,8 @@ resource containerApp 'Microsoft.Web/containerApps@2022-03-01' = {
         }
       ]
       ingress: {
-        'external': nodeIsExternalIngress
-        'targetPort': nodePort
+        external: nodeIsExternalIngress
+        targetPort: nodePort
       }
     }
     template: {
@@ -96,7 +99,7 @@ resource containerApp 'Microsoft.Web/containerApps@2022-03-01' = {
         {
           image: nodeImage
           name: nodeServiceAppName
-          transport: 'auto'
+
           env: [
 
             {
