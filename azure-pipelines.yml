@@ -7,9 +7,8 @@ trigger:
 - master
 
 pool:
-  name: Default
-  demands: azureps
-
+  name:  Testing-Beta
+  
 steps: 
 - task: AzureFileCopy@5
   displayName: 'AzureBlob File Copy - version'
