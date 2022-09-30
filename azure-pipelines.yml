@@ -15,7 +15,7 @@ steps:
   inputs:
     SourcePath: 'package.json'
     Destination: 'AzureBlob'
-    azureSubscription: 'dna-upload'
+    azureSubscription: 'Pay-As-You-Go(9a2a1feb-ec12-4830-a552-2cd307bf4168)'
     storage: 'swiftperformance'
     ContainerName: 'dna'
     BlobPrefix: 'firmware_live_C_v1/master'
