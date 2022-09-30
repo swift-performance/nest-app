@@ -10,13 +10,12 @@ pool:
   name:  Testing-Beta
   
 steps: 
-- task: AzureFileCopy@5
-  displayName: 'AzureBlob File Copy - version'
-  inputs:
-    SourcePath: 'package.json'
-    Destination: 'AzureBlob'
-    azureSubscription: 'Pay-As-You-Go(9a2a1feb-ec12-4830-a552-2cd307bf4168)'
-    storage: 'swiftperformance'
-    ContainerName: 'dna'
-    BlobPrefix: 'firmware_live_C_v1/master'
-    outputStorageUri: 'https://swiftperformance.blob.core.windows.net/dna/firmware_live_C_v1/master/'
+    - task: AzureFileCopy@5
+      inputs:
+        SourcePath: 'package.json'
+        azureSubscription: 'Pay-As-You-Go(9a2a1feb-ec12-4830-a552-2cd307bf4168)'
+        Destination: 'AzureBlob'
+        storage: 'swiftperformance'
+        ContainerName: 'dna'
+        BlobPrefix: 'firmware_live_C_v1/master'
+        outputStorageUri: 'https://swiftperformance.blob.core.windows.net/dna/firmware_live_C_v1/master/'
