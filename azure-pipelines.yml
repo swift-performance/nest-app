@@ -15,6 +15,7 @@ steps:
   inputs:
     SourcePath: 'package.json'
     Destination: 'AzureBlob'
+    azureSubscription: 'dna-upload'
     storage: 'swiftperformance'
     ContainerName: 'dna'
     BlobPrefix: 'firmware_live_C_v1/master'
